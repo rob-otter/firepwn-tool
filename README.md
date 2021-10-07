@@ -2,6 +2,8 @@
 
 Most of the firebase pentest scripts on github(like [this one](https://github.com/MuhammadKhizerJaved/Insecure-Firebase-Exploit) or [this one](https://github.com/nullr3x/ExpoFire)) are using the [Firebase REST API](https://firebase.google.com/docs/reference/rest/database) to test for configuration issues in Firebase apps. 
 
+This is a fork of https://github.com/0xbigshaq
+
 However: 
 * They might provide false-positive results in some GCP environments. 
 * Those scripts test for authentication issues only and not authorization.
