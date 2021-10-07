@@ -5,8 +5,25 @@ window.functionsService = null;
 window.app = null;
 
 outputLog = null;
+config = null;
 
-document.addEventListener('DOMContentLoaded', function() {
+fetch('js/config.json')
+    .then(response => response.json())
+    .then(data => {
+        config = data
+        initForm = document.querySelector('#init-form');
+        console.log(data.apikey)
+        initForm['apiKey'].value = data.apikey
+        initForm['authDomain'].value = data.authDomain
+        initForm['databaseURL'].value = data.databaseURL
+        initForm['projectId'].value = data.projectId
+    })
+    .catch(e => {
+        console.error(e);
+    });
+
+
+document.addEventListener('DOMContentLoaded', function () {
     outputLog = document.getElementById('output-log');
     // materialize stuff
     var elems = document.querySelectorAll('.collapsible');
@@ -30,10 +47,10 @@ document.addEventListener('DOMContentLoaded', function() {
         let input_authDomain = initForm['authDomain'];
         let input_databaseURL = initForm['databaseURL'];
         let input_projectId = initForm['projectId'];
-        let input_btnInit = initForm['btn-init']
+        let input_btnInit = initForm['btn-init'];
 
         // create a firebaseConfig
-        let firebaseConfig = { 
+        let firebaseConfig = {
             apiKey: input_apiKey.value,
             authDomain: input_authDomain.value,
             databaseURL: input_databaseURL.value,
@@ -45,14 +62,14 @@ document.addEventListener('DOMContentLoaded', function() {
             app = firebase.initializeApp(firebaseConfig);
         } catch (e) {
             console.log(e);
-            M.toast({html: e.message});
+            M.toast({ html: e.message });
             app.delete(app); // prevent dupliace db error 
         }
-        
+
         // init firebase services
         firestoreService = firebase.firestore();
         authService = firebase.auth();
-        functionsService = firebase.functions();
+        functionsService = firebase.app().functions('europe-west1');
 
         // upadte DOM
         input_apiKey.disabled = true;
@@ -70,10 +87,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // register a auth event
 
-        authService.onAuthStateChanged( user => {
+        authService.onAuthStateChanged(user => {
             authPane = document.querySelector('#auth-pane');
             let status = document.querySelector('#auth-status');
-            if (user) { 
+            if (user) {
                 status.innerHTML = `logged in as ${user.email} <br /> (uid: ${user.uid})
                 
                 <p />
@@ -87,16 +104,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 authPane.style = "display: block;";
             }
         });
-    
 
-        
+
+
     });
 
 
     // db explorer
     opSelect = document.querySelector("#op-name");
     opSelect.addEventListener('change', e => {
-        if(['set', 'update'].includes(e.target.value)) {
+        if (['set', 'update'].includes(e.target.value)) {
             // toggle<show>
             document.querySelector('#op-json').style.display = "block";
         } else {
@@ -116,17 +133,17 @@ document.addEventListener('DOMContentLoaded', function() {
         let password = loginForm['password'].value;
 
         try {
-            authService.signInWithEmailAndPassword(email, password).then( creds => {
+            authService.signInWithEmailAndPassword(email, password).then(creds => {
                 console.log(creds.user.email);
                 console.log(creds.user.uid);
             }).catch(e => {
-                M.toast( {html: e.message} );
+                M.toast({ html: e.message });
                 console.log(e);
                 output(`<b>Error:</b> Firebase auth failed. For more info, open the browser's console.`);
             });
 
         } catch (e) {
-            M.toast( { html: e.message } );
+            M.toast({ html: e.message });
         }
     });
 
@@ -139,16 +156,16 @@ document.addEventListener('DOMContentLoaded', function() {
         let password = signupForm['password'].value;
 
         try {
-            authService.createUserWithEmailAndPassword(email, password).then( creds => {
+            authService.createUserWithEmailAndPassword(email, password).then(creds => {
                 output(`Account created (${creds.user.email})`);
                 console.log(creds.user.email);
                 console.log(creds.user.uid);
             }).catch(e => {
-                M.toast( {html: e.message} );
+                M.toast({ html: e.message });
             });
 
         } catch (e) {
-            M.toast( { html: e.message } );
+            M.toast({ html: e.message });
         }
     });
 
@@ -165,33 +182,33 @@ document.addEventListener('DOMContentLoaded', function() {
         let docId = exploreForm['docId'].value;
         let data = '';
 
-        if(['set', 'update'].includes(op)) {
+        if (['set', 'update'].includes(op)) {
             try {
-                eval( `jsonInput = [${jsonInput}]; jsonInput = jsonInput[0];` ); // yuck. It is what it is
+                eval(`jsonInput = [${jsonInput}]; jsonInput = jsonInput[0];`); // yuck. It is what it is
                 console.log(jsonInput)
-            } catch(e) {
-                M.toast( {html: `Please enter a valid JSON object`} );
+            } catch (e) {
+                M.toast({ html: `Please enter a valid JSON object` });
                 return;
             };
 
             // set 
-            if(op == 'set') {
+            if (op == 'set') {
                 try {
-                    if(docId) {
-                        firestoreService.collection(collection_name).doc(docId).set(jsonInput).then( () => {
+                    if (docId) {
+                        firestoreService.collection(collection_name).doc(docId).set(jsonInput).then(() => {
                             console.log(`Document was overwritten/created (ID: ${docId})`);
                             output(`<b>Document overwritten/created (ID: ${docId})</b> <br /><b>Result: </b> ${escapeHtml(JSON.stringify(jsonInput))}`);
                         }).catch(e => {
                             output(`<b>Error:</b> ${e.message}`);
                         });
                     } else {
-                        firestoreService.collection(collection_name).add(jsonInput).then( docref => {
+                        firestoreService.collection(collection_name).add(jsonInput).then(docref => {
                             console.log("firestore response: ", docref);
-                             output(`<b>Response</b>: <br /> Document added (ID: ${docref.id})`);
-                         }).catch(e => {
-                             output(`<b>Error:</b> ${e.message}`);
-                             console.log(e);
-                         });
+                            output(`<b>Response</b>: <br /> Document added (ID: ${docref.id})`);
+                        }).catch(e => {
+                            output(`<b>Error:</b> ${e.message}`);
+                            console.log(e);
+                        });
                     }
                 } catch (e) {
                     console.log(e);
@@ -200,82 +217,82 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // update docment
-            else if(op == 'update') {
+            else if (op == 'update') {
                 try {
-                    if(docId) {
-                        firestoreService.collection(collection_name).doc(docId).update(jsonInput).then( () => {
+                    if (docId) {
+                        firestoreService.collection(collection_name).doc(docId).update(jsonInput).then(() => {
                             console.log(`Updated(Doc ID: ${docId})`);
                             output(`<b>Updated fields(Doc ID: ${docId})</b><br /> ${escapeHtml(JSON.stringify(jsonInput))}`);
                         }).catch(e => {
                             output(`<b>Error:</b> ${e.message}`);
                         });
                     } else {
-                        throw { message: `Document ID field is mandatory when trying to delete/update a record`};
+                        throw { message: `Document ID field is mandatory when trying to delete/update a record` };
                     }
                 } catch (e) {
                     console.log(e);
                     output(`<b>Error:</b> ${e.message}`);
                 }
-            } 
+            }
         } else {
-            
-            // get
-            if(op == 'get') {
-            try {
-                if(docId) {
-                    // get a specific document
-                    firestoreService.collection(collection_name).doc(docId).get().then(snapshot => {
-                        data = snapshot.data();
-                        if(!data) {
-                            throw { message: `Document ${docId} not found` }; 
-                        } 
-                        console.log("firestore response: ", data);
-                        output(`<b>Getting <i>${docId}</i> from <i>${collection_name}</i> </b> <br /> <b>Response</b>: <br /> ${escapeHtml(JSON.stringify(data))}`);
-                    }).catch(e => {
-                        output(`Error: ${e.message}`);
-                    });
-                } else {
-                    // get all documents inside a specific collection
-                    firestoreService.collection(collection_name).get().then(snapshots => {
-                        let result = '<b>Response</b>: <br />';
-                        console.log("firestore response: ");
-                        if(!snapshots.docs.length) {
-                            throw { message: `empty response` }
-                        }
-                        snapshots.docs.forEach( doc => {
-                            data = doc.data();
-                            console.log(data);
-                            result += escapeHtml(JSON.stringify(data)) + "<br />";
-                         });
-                         output(result);
-                     }).catch(e => {
-                         output(`Error: ${e.message}`);
-                         console.log(e);
-                     });
-                }
-            } catch (e) {
-                console.log(e);
-                output(`Error: ${e.message}`);
-            }
 
-            // delete
-        } else if(op == 'delete') {
-            try {
-                if(docId) {
-                    firestoreService.collection(collection_name).doc(docId).delete().then( () => {
-                        console.log(`Deleted(Doc ID: ${docId})`);
-                        output(`<b>Deleted</b>(Doc ID: ${docId})`);
-                    }).catch(e => {
-                        output(`Error: ${e.message}`);
-                    });
-                } else {
-                    throw { message: `Document ID field is mandatory when trying to delete/update a record`};
+            // get
+            if (op == 'get') {
+                try {
+                    if (docId) {
+                        // get a specific document
+                        firestoreService.collection(collection_name).doc(docId).get().then(snapshot => {
+                            data = snapshot.data();
+                            if (!data) {
+                                throw { message: `Document ${docId} not found` };
+                            }
+                            console.log("firestore response: ", data);
+                            output(`<b>Getting <i>${docId}</i> from <i>${collection_name}</i> </b> <br /> <b>Response</b>: <br /> ${escapeHtml(JSON.stringify(data))}`);
+                        }).catch(e => {
+                            output(`Error: ${e.message}`);
+                        });
+                    } else {
+                        // get all documents inside a specific collection
+                        firestoreService.collection(collection_name).get().then(snapshots => {
+                            let result = '<b>Response</b>: <br />';
+                            console.log("firestore response: ");
+                            if (!snapshots.docs.length) {
+                                throw { message: `empty response` }
+                            }
+                            snapshots.docs.forEach(doc => {
+                                data = doc.data();
+                                console.log(data);
+                                result += escapeHtml(JSON.stringify(data)) + "<br />";
+                            });
+                            output(result);
+                        }).catch(e => {
+                            output(`Error: ${e.message}`);
+                            console.log(e);
+                        });
+                    }
+                } catch (e) {
+                    console.log(e);
+                    output(`Error: ${e.message}`);
                 }
-            } catch (e) {
-                console.log(e);
-                output(`Error: ${e.message}`);
+
+                // delete
+            } else if (op == 'delete') {
+                try {
+                    if (docId) {
+                        firestoreService.collection(collection_name).doc(docId).delete().then(() => {
+                            console.log(`Deleted(Doc ID: ${docId})`);
+                            output(`<b>Deleted</b>(Doc ID: ${docId})`);
+                        }).catch(e => {
+                            output(`Error: ${e.message}`);
+                        });
+                    } else {
+                        throw { message: `Document ID field is mandatory when trying to delete/update a record` };
+                    }
+                } catch (e) {
+                    console.log(e);
+                    output(`Error: ${e.message}`);
+                }
             }
-          }
         }
     });
 
@@ -293,14 +310,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // validations
         let validateFunc = /^[a-zA-Z][a-zA-Z0-9]+([ ]|[a-zA-Z])\(/gm;
-        if(!validateFunc.exec(cloudCmd)) {
-            M.toast({html: `Please enter a valid invoke syntax`});
-            return ;
+        if (!validateFunc.exec(cloudCmd)) {
+            M.toast({ html: `Please enter a valid invoke syntax` });
+            return;
         }
-        
-        if(funcParams[funcParams.length-1] != ')') {
-            M.toast({html: `Please enter a valid invoke syntax. <br />Reason: The input is not ending with  ')'`});
-            return ;
+
+        if (funcParams[funcParams.length - 1] != ')') {
+            M.toast({ html: `Please enter a valid invoke syntax. <br />Reason: The input is not ending with  ')'` });
+            return;
         }
 
         // start invoke
@@ -323,11 +340,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 result += "For more info, open the browser's console.";
                 output(result);
             })`);
-        } catch(e) {
-            M.toast({html: "Invalid invoke syntax. For more information, open the browser's console."});
+        } catch (e) {
+            M.toast({ html: "Invalid invoke syntax. For more information, open the browser's console." });
             console.log(e);
         }
-        
+
     });
 
 });
@@ -339,10 +356,10 @@ function output(data) {
 }
 
 function escapeHtml(data) { // making the output less messy in case the firestore db contains entries with html tags in it
-    return data           
-         .replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;");
- }
+    return data
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}

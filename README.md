@@ -4,6 +4,12 @@ Most of the firebase pentest scripts on github(like [this one](https://github.co
 
 This is a fork of https://github.com/0xbigshaq
 
+you can run the application by e.g. using a python server `cd src/ && python -m http.server 8000`
+
+## Features added in this Fork:
+
+- Start with a config (`src/js/config.json`), so you do not have to type the firebase config everytime (`src/js/config_example.json` is an example on how the config looks like). 
+
 However: 
 * They might provide false-positive results in some GCP environments. 
 * Those scripts test for authentication issues only and not authorization.
