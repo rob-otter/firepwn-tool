@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let input_authDomain = initForm['authDomain'];
         let input_databaseURL = initForm['databaseURL'];
         let input_projectId = initForm['projectId'];
-        let input_functionsLocations = initForm['functionsLocation'].value;
+        let input_functionsLocations = initForm['functionsLocation'];
         let input_btnInit = initForm['btn-init'];
 
         // create a firebaseConfig
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // init firebase services
         firestoreService = firebase.firestore();
         authService = firebase.auth();
-        functionsService = firebase.app().functions(input_functionsLocations || null);
+        functionsService = firebase.app().functions(input_functionsLocations.value || null);
 
         // upadte DOM
         input_apiKey.disabled = true;
@@ -78,6 +78,7 @@ document.addEventListener('DOMContentLoaded', function () {
         input_databaseURL.disabled = true;
         input_projectId.disabled = true;
         input_btnInit.disabled = true;
+        input_functionsLocations.disabled = true;
 
         // show gui
         elem = document.querySelector('#init-collapsible');
