@@ -2,6 +2,7 @@
 window.authService = null;
 window.firestoreService = null;
 window.functionsService = null;
+window.storageService = null;
 window.app = null;
 
 outputLog = null;
@@ -17,6 +18,7 @@ fetch('js/config.json')
         initForm['databaseURL'].value = data.databaseURL
         initForm['projectId'].value = data.projectId
         initForm['functionsLocation'].value = data.functionsLocation
+        initForm['storageBucket'].value = data.storageBucket
     })
     .catch(e => {
         console.error(e);
@@ -47,6 +49,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let input_authDomain = initForm['authDomain'];
         let input_databaseURL = initForm['databaseURL'];
         let input_projectId = initForm['projectId'];
+        let input_storageBucket = initForm['storageBucket'];
         let input_functionsLocations = initForm['functionsLocation'];
         let input_btnInit = initForm['btn-init'];
 
@@ -55,7 +58,8 @@ document.addEventListener('DOMContentLoaded', function () {
             apiKey: input_apiKey.value,
             authDomain: input_authDomain.value,
             databaseURL: input_databaseURL.value,
-            projectId: input_projectId.value
+            projectId: input_projectId.value,
+            storageBucket: input_storageBucket.value
         };
 
         // init firebase
@@ -71,6 +75,7 @@ document.addEventListener('DOMContentLoaded', function () {
         firestoreService = firebase.firestore();
         authService = firebase.auth();
         functionsService = firebase.app().functions(input_functionsLocations.value || null);
+        storageService = firebase.app().storage()
 
         // upadte DOM
         input_apiKey.disabled = true;
@@ -78,6 +83,7 @@ document.addEventListener('DOMContentLoaded', function () {
         input_databaseURL.disabled = true;
         input_projectId.disabled = true;
         input_btnInit.disabled = true;
+        input_storageBucket.disabled = true
         input_functionsLocations.disabled = true;
 
         // show gui
@@ -348,6 +354,59 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
     });
+
+
+    // download file from cloud storage
+    storageForm = document.querySelector('#invoke-cs-download');
+    storageForm.addEventListener('submit', e => {
+        e.preventDefault();
+
+        // fetch info from dom
+        let path = storageForm['cloud-storage-path'].value;
+        // validations
+        if (path.includes(' ') || path.includes('\\')) {
+            M.toast({ html: `Please enter a valid path - (a path does not contain a space or backslash)` });
+            return;
+        }
+
+        // start download
+        let op = storageForm['op'].value;
+        if (op == 'download') {
+            storageService.ref(path)
+                .getDownloadURL()
+                .then(url => output('<a target="_blank" href="' + url + '">' + url + '</a>'))
+                .catch(e => {
+                    console.error(e);
+                    output(e);
+                })
+        } else if (op == 'list') {
+            storageService.ref(path)
+                .listAll()
+                .then(res => {
+                    let result = {
+                        dirs: [],
+                        files: []
+                    }
+                    res.prefixes.forEach((folderRef) => {
+                        result.dirs.push(folderRef.name)
+                    });
+                    res.items.forEach((itemRef) => {
+                        result.files.push(itemRef.name)
+                    });
+                    output('dirs: ' + result.dirs.toString())
+                    output('files: ' + result.files.toString())
+                    console.log(result)
+                })
+                .catch(e => {
+                    console.error(e);
+                    output(e);
+                })
+        }
+
+        // try
+
+    });
+
 
 });
 
