@@ -12,11 +12,11 @@ fetch('js/config.json')
     .then(data => {
         config = data
         initForm = document.querySelector('#init-form');
-        console.log(data.apikey)
         initForm['apiKey'].value = data.apikey
         initForm['authDomain'].value = data.authDomain
         initForm['databaseURL'].value = data.databaseURL
         initForm['projectId'].value = data.projectId
+        initForm['functionsLocation'].value = data.functionsLocation
     })
     .catch(e => {
         console.error(e);
@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let input_authDomain = initForm['authDomain'];
         let input_databaseURL = initForm['databaseURL'];
         let input_projectId = initForm['projectId'];
+        let input_functionsLocations = initForm['functionsLocation'].value;
         let input_btnInit = initForm['btn-init'];
 
         // create a firebaseConfig
@@ -69,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // init firebase services
         firestoreService = firebase.firestore();
         authService = firebase.auth();
-        functionsService = firebase.app().functions('europe-west1');
+        functionsService = firebase.app().functions(input_functionsLocations || null);
 
         // upadte DOM
         input_apiKey.disabled = true;

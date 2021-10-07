@@ -2,5 +2,6 @@
   "apikey": "",
   "authDomain": "",
   "databaseURL": "",
-  "projectId": ""
+  "projectId": "",
+  "functionsLocation": "europe-west1"
 }

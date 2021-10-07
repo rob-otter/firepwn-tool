@@ -9,6 +9,7 @@ you can run the application by e.g. using a python server `cd src/ && python -m 
 ## Features added in this Fork:
 
 - Start with a config (`src/js/config.json`), so you do not have to type the firebase config everytime (`src/js/config_example.json` is an example on how the config looks like). 
+- The possibility to configure the location of the functions
 
 However: 
 * They might provide false-positive results in some GCP environments. 
