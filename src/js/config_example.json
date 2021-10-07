@@ -1,7 +1,8 @@
 {
-  "apikey": "",
+  "apiKey": "",
   "authDomain": "",
   "databaseURL": "",
   "projectId": "",
+  "storageBucket": "",
   "functionsLocation": "europe-west1"
 }

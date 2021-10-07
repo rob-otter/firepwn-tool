@@ -13,7 +13,7 @@ fetch('js/config.json')
     .then(data => {
         config = data
         initForm = document.querySelector('#init-form');
-        initForm['apiKey'].value = data.apikey
+        initForm['apiKey'].value = data.apiKey
         initForm['authDomain'].value = data.authDomain
         initForm['databaseURL'].value = data.databaseURL
         initForm['projectId'].value = data.projectId
