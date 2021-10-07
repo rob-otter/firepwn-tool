@@ -6,12 +6,6 @@ This is a fork of https://github.com/0xbigshaq
 
 you can run the application by e.g. using a python server `cd src/ && python -m http.server 8000`
 
-## Features added in this Fork:
-
-- Start with a config (`src/js/config.json`), so you do not have to type the firebase config everytime (`src/js/config_example.json` is an example on how the config looks like). 
-- The possibility to configure the location of the functions.
-- List or download files from cloud storage if the rules let you pass.
-
 However: 
 * They might provide false-positive results in some GCP environments. 
 * Those scripts test for authentication issues only and not authorization.
@@ -20,6 +14,12 @@ However:
 After digging in Google's documentation for a while, I managed to realize how Firebase applications work internally and the real possibilities to exploit misconfigured *Firebase Security Rules*.
 
 This is why I created *firepwn*: a tool for testing authentication **and** authorization by utilizing multiple Google services(Firebase Auth, Firestore and Cloud Functions) using the Client SDK. 
+
+## Features added in this Fork:
+
+- Start with a config (`src/js/config.json`), so you do not have to type the firebase config everytime (`src/js/config_example.json` is an example on how the config looks like). 
+- The possibility to configure the location of the functions.
+- List or download files from cloud storage if the rules let you pass.
 
 ## Auth Features
 
