@@ -58,6 +58,18 @@
 								<input type="text" name="functionsLocation" placeholder="functionsLocation e.g.: europe-west1" id="functionsLocation" required />
 								<label for="functionsLocation">functionsLocation</label>
 							</div>
+							<div class="switch">
+								Use Emulators:
+								<br></br>
+								<label>
+									Off
+									<input type="checkbox" name="useEmulators">
+									<span class="lever"></span>
+									On
+								</label>
+								<input type="text" name="emulatorProjectId" placeholder="emulator projectID e.g. local-project" id="emulatorProjectId" />
+								<label for="emulatorProjectId">emulator project id</label>
+							</div>
 							<br />
 							<button type="submit" name="btn-init" id="btn-init" class="btn yellow darken-2 z-depth-0">Start</button>
 						</form>
@@ -204,9 +216,9 @@
 	<footer class="footer">
 		<div class="container">
 			<p>Fork: <a href='https://github.com/rob-otter/firepwn-tool' target='_blank'>https://github.com/rob-otter/firepwn-tool</a></p>
-			
+
 			<p>original: <a href='https://github.com/0xbigshaq' target='_blank'>https://github.com/0xbigshaq</a></p>
-			
+
 		</div>
 	</footer>
 </body>

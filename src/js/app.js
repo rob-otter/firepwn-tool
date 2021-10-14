@@ -19,6 +19,7 @@ fetch('js/config.json')
         initForm['projectId'].value = data.projectId
         initForm['functionsLocation'].value = data.functionsLocation
         initForm['storageBucket'].value = data.storageBucket
+        initForm['emulatorProjectId'].value = data.emulatorProjectId || ''
     })
     .catch(e => {
         console.error(e);
@@ -51,6 +52,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let input_projectId = initForm['projectId'];
         let input_storageBucket = initForm['storageBucket'];
         let input_functionsLocations = initForm['functionsLocation'];
+        let input_emulatorProjectId = initForm['emulatorProjectId'];
         let input_btnInit = initForm['btn-init'];
 
         // create a firebaseConfig
@@ -58,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
             apiKey: input_apiKey.value,
             authDomain: input_authDomain.value,
             databaseURL: input_databaseURL.value,
-            projectId: input_projectId.value,
+            projectId: input_emulatorProjectId.value || input_projectId.value,
             storageBucket: input_storageBucket.value
         };
 
@@ -71,11 +73,17 @@ document.addEventListener('DOMContentLoaded', function () {
             app.delete(app); // prevent dupliace db error 
         }
 
-        // init firebase services
         firestoreService = firebase.firestore();
         authService = firebase.auth();
         functionsService = firebase.app().functions(input_functionsLocations.value || null);
-        storageService = firebase.app().storage()
+        storageService = firebase.app().storage();
+        // init firebase services
+        if (initForm['useEmulators'].checked) {
+            functionsService.useEmulator("localhost", 5001);
+            authService.useEmulator("http://localhost:9099");
+            firestoreService.useEmulator("localhost", 8080);
+        }
+
 
         // upadte DOM
         input_apiKey.disabled = true;
@@ -317,7 +325,7 @@ document.addEventListener('DOMContentLoaded', function () {
         let funcParams = cloudCmd.split(funcName)[1];
 
         // validations
-        let validateFunc = /^[a-zA-Z][a-zA-Z0-9]+([ ]|[a-zA-Z])\(/gm;
+        let validateFunc = /^[a-zA-Z][-a-zA-Z0-9]+([ ]|[a-zA-Z])\(/gm;
         if (!validateFunc.exec(cloudCmd)) {
             M.toast({ html: `Please enter a valid invoke syntax` });
             return;
